@@ -372,6 +372,9 @@ jobs:
   check-motor:
     name: Check Motor OS
     runs-on: ubuntu-latest
+    # Not in `tests-pass` (#1836): std for this tier 3 target breaks on nightly
+    # whenever std adds a platform API before motor implements it.
+    continue-on-error: true
     strategy:
       matrix:
         target: [x86_64-unknown-motor]
