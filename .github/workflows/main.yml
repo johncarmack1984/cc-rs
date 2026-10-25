@@ -372,9 +372,6 @@ jobs:
   check-motor:
     name: Check Motor OS
     runs-on: ubuntu-latest
-    # Not in `tests-pass` (#1836): std for this tier 3 target breaks on nightly
-    # whenever std adds a platform API before motor implements it.
-    continue-on-error: true
     strategy:
       matrix:
         target: [x86_64-unknown-motor]
@@ -390,8 +387,13 @@ jobs:
           toolchain: nightly
       - run: cargo update
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      # Not in `tests-pass` (#1836): std for this tier 3 target breaks on nightly
+      # whenever std adds a platform API before motor implements it, so these
+      # steps can fail without failing the job.
       - run: cargo check -Z build-std=std,panic_abort -p cc --target ${{ matrix.target }}
+        continue-on-error: true
       - run: cargo check -Z build-std=std,panic_abort -p cc --target ${{ matrix.target }} --release
+        continue-on-error: true
       # check that there are no uncommitted changes to prevent bugs like https://github.com/rust-lang/cc-rs/issues/1411
       - name: check clean Git workting tree
         uses: ./.github/actions/check-clean-git-working-tree
